@@ -1,6 +1,12 @@
 #ifndef FUNCTIONS.H
 #define FUNCTIONS.H
-
+#include <sys/types.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <string.h>
+#include <time.h>
 
 size_t getLine(char **lineptr, size_t *n, FILE *stream) {
     char *bufptr = NULL;
@@ -73,7 +79,51 @@ void freeArray(char** array, int size){
     }
 }
 
-void fillArrays(DIR* d, struct dirent* de);
+void fillDirArray(DIR* d, struct dirent* de, int* c, int* dirSize, char** array){
+    d = opendir(".");
+        *c = 0;
+        while((de = readdir(d))){
+            if(*c == *dirSize){
+                *dirSize *=2; //double array size
+                array = (char**)realloc(array, *dirSize);
+            }
+            if((de->d_type) & DT_DIR){
+                array[*c] = (char*)calloc(strlen(de->d_name),sizeof(char));
+                strcpy(array[*c], de->d_name);
+                //printf("(%d Directory: %s) \n", c, array[c]);
+                (*c)++;
+            }
+
+        }
+
+        closedir(d);
+}
+
+void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** array){
+    d = opendir(".");
+        *j = 0;
+        while( (de = readdir(d) )){
+            if(((de->d_type == DT_DIR))) continue;
+            if(*j == *fileSize){
+                *fileSize *=2; //double array size
+                array = (char**)realloc(array, *fileSize);
+            }
+            if(((de->d_type == DT_REG))){
+                array[*j] = (char*)calloc(strlen(de->d_name),sizeof(char));
+                strcpy(array[*j],de->d_name);
+                //printf("(%d File: %s)\n", j, array[j]);
+                (*j)++;
+            }
+        }
+
+        closedir(d);
+}
+
+void printArray(char** array, int size){
+    for(int i = 0; i < size; i++){
+        printf("(%d File: %s)\n", i, array[i]);
+    }
+}
 
 
 

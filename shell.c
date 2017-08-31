@@ -17,13 +17,10 @@ int main(void){
     int fileSize = 10, dirSize = 10;
     char s[256], cmd[256];
     int jump = 0;
-    int checked = 0;
+    int notChecked = 1;
     char* buffer = (char*)calloc(bufferSize, sizeof(char));
     char** directories = (char**)calloc(dirSize, sizeof(char*));//array of strings (100)
     char** files = (char**)calloc(fileSize, sizeof(char*));//array of strings (100)
-    printf("%s\n", directories[0]);
-
-    printf("%s\n", directories[0]);
     time_t t;
     size_t bufsize = bufferSize;
     size_t hold;
@@ -34,40 +31,16 @@ int main(void){
 
         getcwd(s, sizeof(s));
         printf("\nCurrent Directory: %s \n", s);
-        d = opendir(".");
-        c = 0;
-        while((de = readdir(d))){
-            if(c == dirSize){
-                dirSize *=2; //double array size
-                directories = (char**)realloc(directories, dirSize);
-            }
-            if((de->d_type) & DT_DIR){
-                directories[c] = (char*)calloc(strlen(de->d_name),sizeof(char));
-                strcpy(directories[c], de->d_name);
-                //printf("(%d Directory: %s) \n", c, directories[c]);
-                c++;
-            }
-
+        if(notChecked){
+            fillDirArray(d, de, &c, &dirSize, directories);
+            fillFileArray(d, de, &j, &fileSize, files);
+            notChecked = 0;
         }
 
-        closedir(d);
-        d = opendir(".");
-        j = 0;
-        while( (de = readdir(d) )){
-            if(((de->d_type == DT_DIR))) continue;
-            if(((de->d_type == DT_REG))){
-                files[j] = (char*)calloc(strlen(de->d_name),sizeof(char));
-                strcpy(files[j],de->d_name);
-                //printf("(%d File: %s)\n", j, files[j]);
-                j++;
-            }
-
-            if(j%8 == 0){
-                printf("Hit N for Next\n");
-                k=getchar();
-            }
-        }
-        closedir(d);
+        printf("Directories:\n");
+        printArray(directories, c);
+        printf("Files:\n");
+        printArray(files,j);
         printf("------------------------------------------------------\n");
         printf("Menu:\n");
         printf("q: Quit\ne: Edit\nr: Run\nc: Change directories\n");
@@ -95,6 +68,7 @@ int main(void){
                      freeArray(files,c);
                      scanf("%s", cmd);
                      fseek(stdin,0,SEEK_END);//flush out input buffer
+                     notChecked = 1; //need to reset as to fill arrays again
                      chdir(cmd);
                      break;
             default: printf("Command not understood\n");
