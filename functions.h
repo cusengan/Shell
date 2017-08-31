@@ -119,8 +119,9 @@ void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** arra
         closedir(d);
 }
 
-void printArray(char** array, int size){
-    for(int i = 0; i < size; i++){
+void printArray(char** array, int size, int jump){
+    int show = 4*(jump+1);
+    for(int i = 4*jump; i < show && i < size; i++){
         printf("(%d File: %s)\n", i, array[i]);
     }
 }

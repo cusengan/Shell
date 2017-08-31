@@ -16,7 +16,7 @@ int main(void){
     int i, c, k, j, num, stringSize = 10;
     int fileSize = 10, dirSize = 10;
     char s[256], cmd[256];
-    int jump = 0;
+    int jump = 0;//jump 4 files at a time
     int notChecked = 1;
     char* buffer = (char*)calloc(bufferSize, sizeof(char));
     char** directories = (char**)calloc(dirSize, sizeof(char*));//array of strings (100)
@@ -38,14 +38,18 @@ int main(void){
         }
 
         printf("Directories:\n");
-        printArray(directories, c);
+        printArray(directories, c, jump);
         printf("Files:\n");
-        printArray(files,j);
+        printArray(files,j, jump);
         printf("------------------------------------------------------\n");
         printf("Menu:\n");
-        printf("q: Quit\ne: Edit\nr: Run\nc: Change directories\n");
+        printf("q: Quit\ne: Edit\nn: Next\np: Prev\nr: Run\nc: Change directories\n");
         num = getchar(); getchar();//need to clear near line
         switch(num){
+            case 'n':jump++;
+                     break;
+            case 'p':jump--;
+                     break;
             case 'q':free(buffer);
                      freeArray(directories, c);
                      freeArray(files, c);
@@ -69,6 +73,7 @@ int main(void){
                      scanf("%s", cmd);
                      fseek(stdin,0,SEEK_END);//flush out input buffer
                      notChecked = 1; //need to reset as to fill arrays again
+                     jump = 0;
                      chdir(cmd);
                      break;
             default: printf("Command not understood\n");
