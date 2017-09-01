@@ -73,10 +73,11 @@ void allocateArray(char** array, int size, int stringSize){
 }
 
 void freeArray(char** array, int size){
-    //printf("%d",size);
+    //printf("%d\n",size);
     for(int i = 0; i < size; i++){
         free(array[i]);
     }
+
 }
 
 void fillDirArray(DIR* d, struct dirent* de, int* c, int* dirSize, char** array){
