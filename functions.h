@@ -1,5 +1,5 @@
-#ifndef FUNCTIONS.H
-#define FUNCTIONS.H
+#ifndef FUNCTIONS
+#define FUNCTIONS
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,7 +7,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <time.h>
-#include <conio.h>
+//#include <curses.h>
 
 
 size_t getLine(char **lineptr, size_t *n, FILE *stream) {
@@ -100,7 +100,6 @@ void fillDirArray(DIR* d, struct dirent* de, int* c, int* dirSize, char** array)
             }
 
         }
-        (*c)++;
         closedir(d);
 }
 
@@ -127,7 +126,6 @@ void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** arra
                 fclose(fp);
             }
         }
-        (*j)++;
         closedir(d);
 }
 
@@ -141,9 +139,10 @@ void printFileArray(char** array, int size, int jump){
 
 void printDirArray(char** array, int size, int jump){
     int show = 4*(jump+1);
+    //printf("%d\n", size);
     for(int i = 4*jump; i < show && i < size; i++){
         if(array[i] == NULL) break;
-        printf("(%d Directory: %s)\n", i, array[i]);
+        printf("(%d Directory: %s)\n", i+1, array[i]);
     }
 }
 

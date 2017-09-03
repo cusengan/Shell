@@ -7,7 +7,7 @@
 #include <string.h>
 #include <time.h>
 #include "functions.h"
-#include <conio.h>
+//#include <curses.h>
 #define bufferSize 100
 
 int main(void){
@@ -66,10 +66,11 @@ int main(void){
                      freeArray(files, j);
                      free(directories);
                      free(files);
+                     free(fileSizeArray);
                      exit(0);
             case 'e':printf("Edit what?:");
                      scanf("%s", s);
-                     strcpy(cmd, "notepad ");
+                     strcpy(cmd, "vim ");
                      strcat(cmd, s);
                      system(cmd);
                      /*fork();
@@ -79,8 +80,8 @@ int main(void){
                         system(cmd);
                         kill(child, SIGTERM);
                      }*/
-                     fseek(stdin,0,SEEK_END);
-
+                    
+                     while((getchar() != '\n'));// clears input buffer
                      break;
             case 'r':printf("Run what?:\n");
                      hold = getLine(&buffer, &bufsize, stdin);
@@ -90,9 +91,8 @@ int main(void){
             case 'c':printf("Change To?:");
                      freeArray(directories,c);
                      freeArray(files,j);
-                     free(fileSizeArray);
                      scanf("%s", cmd);
-                     fseek(stdin,0,SEEK_END);//flush out input buffer
+                     while((getchar() != '\n'));// clears input buffer//flush out input buffer
                      notChecked = 1; //need to reset as to fill arrays again
                      jumpDir = 0;
                      jumpFile = 0;
