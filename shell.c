@@ -72,14 +72,17 @@ int main(void){
             case 'e':child = fork();
                      if(child == 0){
                      //printf("in child");
-                     printf("Edit what with vim?:");
-                     scanf("%s", s);
-                     //strcpy(cmd, "vim ");
-                     //strcat(cmd, s);
+                     printf("Edit what with vim? (Choose a file number):");
+                     int choice;
+                     scanf("%d", &choice);
+                     if(choice >= j || choice < 0){
+                        printf("invalid choice\n");
+                        exit(127);
+                     }
                      char* cdo = "vim";
                      char* argv[3];
                      argv[0] = "vim";
-                     argv[1] = s;
+                     argv[1] = files[choice];
                      argv[2] = NULL;
                      execvp(cdo,argv);
                      exit(127);
