@@ -7,7 +7,8 @@
 #include <string.h>
 #include <time.h>
 #include "functions.h"
-//#include <curses.h>
+#include <curses.h>
+#include <sys/wait.h>
 #define bufferSize 100
 
 int main(void){
@@ -68,21 +69,24 @@ int main(void){
                      free(files);
                      free(fileSizeArray);
                      exit(0);
-            case 'e':printf("Edit what?:");
-                     scanf("%s", s);
-                     strcpy(cmd, "vim ");
-                     strcat(cmd, s);
-                     system(cmd);
-                     /*fork();
-                     child = getpid();
+            case 'e':child = fork();
                      if(child == 0){
-                        printf("in child");
-                        system(cmd);
-                        kill(child, SIGTERM);
-                     }*/
-                    
-                     while((getchar() != '\n'));// clears input buffer
-                     break;
+                     //printf("in child");
+                     printf("Edit what with vim?:");
+                     scanf("%s", s);
+                     //strcpy(cmd, "vim ");
+                     //strcat(cmd, s);
+                     char* cdo = "vim";
+                     char* argv[3];
+                     argv[0] = "vim";
+                     argv[1] = s;
+                     argv[2] = NULL;
+                     execvp(cdo,argv);
+                     exit(127);
+                     }else{
+                         wait(0);
+                         break;
+                     }                    
             case 'r':printf("Run what?:\n");
                      hold = getLine(&buffer, &bufsize, stdin);
                      printf("%s",buffer);
