@@ -1,6 +1,7 @@
 #ifndef FUNCTIONS
 #define FUNCTIONS
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -84,6 +85,25 @@ void freeArray(char** array, int size){
 }
 
 
+int getFileCreationTime(char *filePath){
+    struct stat attrib;
+    stat(filePath, &attrib);
+    char date[10];
+    strftime(date, 10, "%y%m%d", localtime(&(attrib.st_ctime)));
+    //printf("The file %s was last modified at %s\n", filePath, date);
+    int i = atoi(date);
+    return i;
+}
+
+char* getCreationTimeString(char *filePath){
+    struct stat attrib;
+    stat(filePath, &attrib);
+    char* date = (char*)calloc(10,sizeof(char));
+    strftime(date, 10, "%m-%d-%y", localtime(&(attrib.st_ctime)));
+    return date;
+}
+
+
 
 void fillDirArray(DIR* d, struct dirent* de, int* c, int* dirSize, char** array){
     d = opendir(".");
@@ -104,7 +124,7 @@ void fillDirArray(DIR* d, struct dirent* de, int* c, int* dirSize, char** array)
         closedir(d);
 }
 
-void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** array, int* fileSizeArray){
+void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** array, int* fileSizeArray, int* dates){
     FILE* fp;
     int size = 0;
     d = opendir(".");
@@ -122,10 +142,13 @@ void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** arra
                 fclose(fp);
                 fileSizeArray[*j] = size;
 
-                array[*j] = (char*)calloc(strlen(de->d_name)+1,sizeof(char));
+                array[*j] = (char*)calloc(strlen(de->d_name)+1,sizeof(char));//need to have str length + 1 for the null character
                 strcpy(array[*j],de->d_name);
-                
-                
+                char* path = (char*)calloc(strlen(de->d_name)+3, sizeof(char));
+                path[0] = '.';
+                path[1] = '/';
+                dates[*j] = getFileCreationTime(strcat(path,de->d_name));
+                free(path);
                 (*j)++;
                 
             }
@@ -133,11 +156,18 @@ void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** arra
         closedir(d);
 }
 
-void printFileArray(char** array, int size, int jump){
+void printFileArray(char** array, int* fileSizes, int* dates, int size, int jump){
     int show = 4*(jump+1);
     for(int i = 4*jump; i < show && i < size; i++){
         if(array[i] == NULL) break;
-        printf("(%d File: %s)\n", i, array[i]);
+        char* path = (char*)calloc(strlen(array[i])+3, sizeof(char));
+        path[0] = '.';
+        path[1] = '/';
+        strcat(path, array[i]);
+        char* date = getCreationTimeString(path);
+        printf("%d File: %s Size: %d bytes Date Last Modified: %s\n", i, array[i], fileSizes[i], date);
+        free(path);
+        free(date);
     }
 }
 
@@ -146,7 +176,7 @@ void printDirArray(char** array, int size, int jump){
     //printf("%d\n", size);
     for(int i = 4*jump; i < show && i < size; i++){
         if(array[i] == NULL) break;
-        printf("(%d Directory: %s)\n", i, array[i]);
+        printf("%d Directory: %s\n", i, array[i]);
     }
 }
 
@@ -161,15 +191,15 @@ void swapStrings(char** s1, char** s2){
     *s1 = *s2;
     *s2 = temp;
 }
-int partition(int* array, char** stringArray, int low, int high){
+int partition(int* mainArray, int* other, char** stringArray, int low, int high){
     int i = low -1;
-    int pivot = array[high];
+    int pivot = mainArray[high];
 
     for(int j = low; j < high; j++){
-        if(array[j] <= pivot){
+        if(mainArray[j] <= pivot){
             i++;
-            swap(array,i, j);
-            
+            swap(mainArray,i, j);
+            swap(other, i, j);
             
             swapStrings(&stringArray[i], &stringArray[j]);
             
@@ -179,25 +209,25 @@ int partition(int* array, char** stringArray, int low, int high){
         }
     }
 
-    swap(array, i+1, high);
+    swap(mainArray, i+1, high);
+    swap(other, i+1, high);
     swapStrings(&stringArray[i+1],&stringArray[high]);
     return i+1;
 
 
 }
-void quickSort(int* array, char** stringArray, int low, int high){
+void quickSort(int* mainArray, int* other, char** stringArray, int low, int high){
     printf("\n");
     for(int i = 0; i <= high; i++){
-        printf("%s-%d\n", stringArray[i],array[i]);
+        printf("%s-%d-%d\n", stringArray[i],mainArray[i],other[i]);
     }
     if(low < high){
-        int pivot = partition(array, stringArray, low, high);
-        quickSort(array, stringArray, low, pivot-1);
-        quickSort(array, stringArray, pivot+1, high);
+        int pivot = partition(mainArray, other, stringArray, low, high);
+        quickSort(mainArray, other, stringArray, low, pivot-1);
+        quickSort(mainArray, other, stringArray, pivot+1, high);
     }
 
 }
-
 
 
 

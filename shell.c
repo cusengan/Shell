@@ -29,6 +29,7 @@ int main(void){
     char** directories = (char**)calloc(dirSize, sizeof(char*));//array of strings (10)
     char** files = (char**)calloc(fileSize, sizeof(char*));//array of strings (10)
     int* fileSizeArray = (int*)calloc(fileSize, sizeof(int));
+    int* dates = (int*)calloc(fileSize, sizeof(int));
 
     while(1){
         t = time( NULL );
@@ -38,13 +39,13 @@ int main(void){
         printf("\nCurrent Directory: %s \n", s);
         if(notChecked){
             fillDirArray(d, de, &c, &dirSize, directories);
-            fillFileArray(d, de, &j, &fileSize, files, fileSizeArray);
+            fillFileArray(d, de, &j, &fileSize, files, fileSizeArray, dates);
             notChecked = 0;
         }
         printf("Directories:\n");
         printDirArray(directories, c, jumpDir);
         printf("Files:\n");
-        printFileArray(files,j, jumpFile);
+        printFileArray(files, fileSizeArray, dates, j, jumpFile);
         printf("------------------------------------------------------\n");
         printf("Menu:\n");
         printf("q: Quit\ne: Edit\nn: Next Directories\np: Previous Directories\nm: Next Files\nj: Previous Files\ns: Sort\nr: Run\nc: Change directories\n");
@@ -56,7 +57,7 @@ int main(void){
             case 'p':if(jumpDir != 0)
                         jumpDir--;
                      break;
-            case 'm':if(4*(jumpFile+1) < c)
+            case 'm':if(4*(jumpFile+1) < j)
                         jumpFile++;
                      break;
             case 'j':if(jumpFile != 0)
@@ -68,6 +69,7 @@ int main(void){
                      free(directories);
                      free(files);
                      free(fileSizeArray);
+                     free(dates);
                      exit(0);
             case 'e':child = fork();
                      if(child == 0){
@@ -90,36 +92,45 @@ int main(void){
                          wait(0);
                          break;
                      }                    
-            case 'r':printf("Run what?:\n");
-                     hold = getLine(&buffer, &bufsize, stdin);
-                     printf("%s",buffer);
-                     system(buffer);
-                     break;
-            case 'c':printf("Change To? (Choose a directory number):");
-                    int choice;
-                    scanf("%d", &choice);
-                    if(choice >= c || c < 0){
+            case 'r':printf("Run what? (Choose a file number):\n");
+                     int program;
+                     scanf("%d", &program);
+                     if(program >= j || program < 0){
                         printf("invalid choice\n");
                         while((getchar() != '\n'));
                         break;
-                    }
-                    chdir(directories[choice]);
+                     }
+                     char* path = (char*)calloc(strlen(files[program])+3, sizeof(char));
+                     path[0] = '.';
+                     path[1] = '/';
+                     strcat(path, files[program]);
+                     system(path);
+                     while((getchar() != '\n'));
+                     free(path);
+                     break;
+            case 'c':printf("Change To? (Choose a directory number):");
+                     int choice;
+                     scanf("%d", &choice);
+                     if(choice >= c || choice < 0){
+                        printf("invalid choice\n");
+                        while((getchar() != '\n'));
+                        break;
+                     }
+                     chdir(directories[choice]);
                      freeArray(directories,c);
                      freeArray(files,j); 
                      while((getchar() != '\n'));// clears input buffer//flush out input buffer
                      notChecked = 1; //need to reset as to fill arrays again
                      jumpDir = 0;
                      jumpFile = 0;
-                     
-
                      break;
             case 's':printf("0: Sort by date:\n");
                      printf("1: Sort by size:\n");
                      scanf("%d", &choice);
                      if(choice == 0)
-                        printf("in progress\n");
+                        quickSort(dates, fileSizeArray, files, 0, j-1);
                      else if(choice == 1)
-                        quickSort(fileSizeArray, files, 0, j-1);
+                        quickSort(fileSizeArray, dates, files, 0, j-1);
                      else printf("invalid choice\n");
                      while((getchar() != '\n'));
                      break;
