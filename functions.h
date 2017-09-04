@@ -93,10 +93,6 @@ void fillDirArray(DIR* d, struct dirent* de, int* c, int* dirSize, char** array)
                 printf("Directory size reached\n");
                 break;
             }
-            if(*c == *dirSize){
-                *dirSize *=2; //double array size
-                array = (char**)realloc(array, *dirSize);
-            }
             if((de->d_type) & DT_DIR){
                 array[*c] = (char*)calloc(2048,sizeof(char));
                 strcpy(array[*c], de->d_name);
@@ -119,20 +115,19 @@ void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** arra
                 break;
             }
             if(((de->d_type == DT_DIR))) continue;
-            if(*j == *fileSize){
-                *fileSize *=2; //double array size
-                array = (char**)realloc(array, *fileSize);
-                fileSizeArray = (int*)realloc(fileSizeArray, *fileSize);
-            }
             if(((de->d_type == DT_REG))){
-                array[*j] = (char*)calloc(strlen(de->d_name),sizeof(char));
-                strcpy(array[*j],de->d_name);
                 fp = fopen(de->d_name, "r");
                 fseek(fp, 0, 2);
                 size = ftell(fp);
-                fileSizeArray[*j] = size;
-                (*j)++;
                 fclose(fp);
+                fileSizeArray[*j] = size;
+
+                array[*j] = (char*)calloc(strlen(de->d_name)+1,sizeof(char));
+                strcpy(array[*j],de->d_name);
+                
+                
+                (*j)++;
+                
             }
         }
         closedir(d);
@@ -151,7 +146,7 @@ void printDirArray(char** array, int size, int jump){
     //printf("%d\n", size);
     for(int i = 4*jump; i < show && i < size; i++){
         if(array[i] == NULL) break;
-        printf("(%d Directory: %s)\n", i+1, array[i]);
+        printf("(%d Directory: %s)\n", i, array[i]);
     }
 }
 

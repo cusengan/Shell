@@ -15,8 +15,8 @@ int main(void){
     pid_t child;
     DIR* d;
     struct dirent* de;
-    int i, c, k, j, num, stringSize = 10;
-    int fileSize = 10, dirSize = 10;
+    int i=0, c=0, k=0, j=0, num=0, stringSize = 10;
+    int fileSize = 1024, dirSize = 1024;
     char s[256], cmd[256];
     int jumpDir = 0;//jump 4 dirs at a time
     int jumpFile = 0;//jump 4 files at a time
@@ -95,22 +95,23 @@ int main(void){
                      printf("%s",buffer);
                      system(buffer);
                      break;
-            case 'c':printf("Change To? (Choose a directory number (-1 for previous directory):");
+            case 'c':printf("Change To? (Choose a directory number):");
                     int choice;
                     scanf("%d", &choice);
-                    if(choice >= c || c < -1){
+                    if(choice >= c || c < 0){
                         printf("invalid choice\n");
                         while((getchar() != '\n'));
                         break;
                     }
+                    chdir(directories[choice]);
                      freeArray(directories,c);
                      freeArray(files,j); 
                      while((getchar() != '\n'));// clears input buffer//flush out input buffer
                      notChecked = 1; //need to reset as to fill arrays again
                      jumpDir = 0;
                      jumpFile = 0;
-                     if(choice == -1) chdir("..");
-                     else chdir(directories[choice]);
+                     
+
                      break;
             case 's':printf("0: Sort by date:\n");
                      printf("1: Sort by size:\n");
