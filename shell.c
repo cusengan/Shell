@@ -95,19 +95,32 @@ int main(void){
                      printf("%s",buffer);
                      system(buffer);
                      break;
-            case 'c':printf("Change To?:");
+            case 'c':printf("Change To? (Choose a directory number (-1 for previous directory):");
+                    int choice;
+                    scanf("%d", &choice);
+                    if(choice >= c || c < -1){
+                        printf("invalid choice\n");
+                        while((getchar() != '\n'));
+                        break;
+                    }
                      freeArray(directories,c);
-                     freeArray(files,j);
-                     scanf("%s", cmd);
+                     freeArray(files,j); 
                      while((getchar() != '\n'));// clears input buffer//flush out input buffer
                      notChecked = 1; //need to reset as to fill arrays again
                      jumpDir = 0;
                      jumpFile = 0;
-                     chdir(cmd);
+                     if(choice == -1) chdir("..");
+                     else chdir(directories[choice]);
                      break;
-            case 's':printf("d: Sort by date:\n");
-                     printf("s: Sort by size:\n");
-                     quickSort(fileSizeArray, files, 0, j-1);
+            case 's':printf("0: Sort by date:\n");
+                     printf("1: Sort by size:\n");
+                     scanf("%d", &choice);
+                     if(choice == 0)
+                        printf("in progress\n");
+                     else if(choice == 1)
+                        quickSort(fileSizeArray, files, 0, j-1);
+                     else printf("invalid choice\n");
+                     while((getchar() != '\n'));
                      break;
             default: printf("Command not understood\n");
         }

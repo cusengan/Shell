@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h>
 //#include <curses.h>
 
 
@@ -88,12 +89,16 @@ void fillDirArray(DIR* d, struct dirent* de, int* c, int* dirSize, char** array)
     d = opendir(".");
         *c = 0;
         while((de = readdir(d))){
+            if(*c == 1024){
+                printf("Directory size reached\n");
+                break;
+            }
             if(*c == *dirSize){
                 *dirSize *=2; //double array size
                 array = (char**)realloc(array, *dirSize);
             }
             if((de->d_type) & DT_DIR){
-                array[*c] = (char*)calloc(strlen(de->d_name),sizeof(char));
+                array[*c] = (char*)calloc(2048,sizeof(char));
                 strcpy(array[*c], de->d_name);
                 //printf("(%d Directory: %s) \n", c, array[c]);
                 (*c)++;
@@ -109,6 +114,10 @@ void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** arra
     d = opendir(".");
         *j = 0;
         while( (de = readdir(d) )){
+            if(*j == 1024){
+                printf("File size reached");
+                break;
+            }
             if(((de->d_type == DT_DIR))) continue;
             if(*j == *fileSize){
                 *fileSize *=2; //double array size
@@ -151,6 +160,12 @@ void swap(int* array, int first, int second){
     array[first] = array[second];
     array[second] = temp;
 }
+
+void swapStrings(char** s1, char** s2){
+    char* temp = *s1;
+    *s1 = *s2;
+    *s2 = temp;
+}
 int partition(int* array, char** stringArray, int low, int high){
     int i = low -1;
     int pivot = array[high];
@@ -159,29 +174,33 @@ int partition(int* array, char** stringArray, int low, int high){
         if(array[j] <= pivot){
             i++;
             swap(array,i, j);
-            char* temp = (char*)calloc(strlen(stringArray[j]), sizeof(char));
-            strcpy(temp,stringArray[j]);
-            stringArray[j] = realloc(stringArray[j], strlen(stringArray[i]));
-            strcpy(stringArray[j], stringArray[i]);
-            stringArray[i] = realloc(stringArray[i], strlen(temp));
-            strcpy(stringArray[i], temp);
-            free(temp);
+            
+            
+            swapStrings(&stringArray[i], &stringArray[j]);
+            
+           
 
 
         }
     }
 
     swap(array, i+1, high);
+    swapStrings(&stringArray[i+1],&stringArray[high]);
     return i+1;
 
 
 }
 void quickSort(int* array, char** stringArray, int low, int high){
+    printf("\n");
+    for(int i = 0; i <= high; i++){
+        printf("%s-%d\n", stringArray[i],array[i]);
+    }
     if(low < high){
         int pivot = partition(array, stringArray, low, high);
-        quickSort(array, stringArray, low, pivot -1);
-        quickSort(array, stringArray, pivot + 1, high);
+        quickSort(array, stringArray, low, pivot-1);
+        quickSort(array, stringArray, pivot+1, high);
     }
+
 }
 
 
