@@ -18,7 +18,7 @@ int main(void){
     struct dirent* de;
     int i=0, c=0, k=0, j=0, num=0, stringSize = 10;
     int fileSize = 1024, dirSize = 1024;
-    char s[256], cmd[256];
+    char s[500];
     int jumpDir = 0;//jump 4 dirs at a time
     int jumpFile = 0;//jump 4 files at a time
     int notChecked = 1;
@@ -36,8 +36,11 @@ int main(void){
         t = time( NULL );
         printf("Time: %s\n", ctime(&t));
 
-        getcwd(s, sizeof(s));
-        printf("\nCurrent Directory: %s \n", s);
+        if(getcwd(s, sizeof(s)) == NULL)
+            printf("Directory path is too long to be shown\n");
+        else
+            printf("\nCurrent Directory: %s \n", s);
+
         if(notChecked){
             fillDirArray(d, de, &c, &dirSize, directories);
             fillFileArray(d, de, &j, &fileSize, files, fileSizeArray, dates);

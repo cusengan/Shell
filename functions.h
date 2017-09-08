@@ -111,6 +111,10 @@ char* getCreationTimeString(char *filePath){
 
 void fillDirArray(DIR* d, struct dirent* de, int* c, int* dirSize, char** array){
     d = opendir(".");
+    if(d == NULL){
+        printf("Cannot open directory\n");
+        return;
+    }
         *c = 0;
         while((de = readdir(d))){
             if(*c == ARRAY_LENGTH){
@@ -136,6 +140,10 @@ void fillFileArray(DIR* d, struct dirent* de, int* j, int* fileSize, char** arra
     FILE* fp;
     int size = 0;
     d = opendir(".");
+    if(d == NULL){
+        printf("Cannot open directory\n");
+        return;
+    }
         *j = 0;
         while( (de = readdir(d) )){
             if(*j == ARRAY_LENGTH){
