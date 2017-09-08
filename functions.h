@@ -52,13 +52,15 @@ size_t getLine(char **lineptr, size_t *n, FILE *stream) {
                 return -1;
             }
         }
-        *p++ = c;
         if (c == '\n') {
             break;
         }
+        *p++ = c;
+        
         c = fgetc(stream);
     }
 
+    *p++ = ' ';
     *p++ = '\0';
     *lineptr = bufptr;
     *n = size;

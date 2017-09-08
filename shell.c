@@ -144,19 +144,24 @@ int main(void){
                     printf("%d\n",args);
                     printf("Type in your arguments one at a time (argument size is 100):\n");
                     char** arguments = (char**)calloc(args, sizeof(char*));
+                    int argumentSize = 0;
                     for(int i = 0; i < args; i++){
                         arguments[i] = readLine();
-                        printf("%d-%s\n",i , arguments[i]);
+                        argumentSize+=strlen(arguments[i]);
                     }
+
+                    printf("%d\n",argumentSize );
                     
 
-                     char* path = (char*)calloc(strlen(files[program])+3, sizeof(char));
+                     char* path = (char*)calloc(strlen(files[program])+3 + 1 + argumentSize, sizeof(char));
                      path[0] = '.';
                      path[1] = '/';
                      strcat(path, files[program]);
-
+                     strcat(path, " ");
+                     for(int i = 0; i < args; i++){
+                        strcat(path, arguments[i]);
+                     }
                      system(path);
-                     while((getchar() != '\n'));
                      freeArray(arguments, args);
                      free(arguments);
                      free(path);
